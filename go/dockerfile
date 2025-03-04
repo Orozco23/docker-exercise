@@ -1,29 +1,29 @@
-# Usa una imagen base de Golang para construir el binario
+# Uses a Golang base image to build the binary
 FROM golang:1.20-alpine AS builder
 
-# Establece el directorio de trabajo en el contenedor
+# Set the working directory in the container
 WORKDIR /go/src/app
 
-# Copia el código fuente al contenedor
+# Copy the source code to the container
 COPY . .
 
-# Establece la variable de entorno GOPATH para la compilación
+# Set GOPATH environment variable for compilation
 ENV GOPATH=/go
 
-# Compila el binario sin necesidad de módulos Go
+# Compile the binary without the need for Go modules
 RUN go build -o app .
 
-# Usa una imagen base más ligera para ejecutar la aplicación
+# Uses a lighter base image to run the application
 FROM alpine:latest
 
-# Establece el directorio de trabajo en el contenedor
+# Set the working directory in the container
 WORKDIR /root/
 
-# Copia el binario desde el contenedor de construcción
+# Copy the binary from the build container
 COPY --from=builder /go/src/app/app .
 
-# Expone el puerto en el que la aplicación escucha
+# Exposes the port the application listens on
 EXPOSE 9999
 
-# Comando para ejecutar la aplicación
+# Command to run the application
 CMD ["./app"]
