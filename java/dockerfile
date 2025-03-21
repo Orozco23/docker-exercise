@@ -1,0 +1,24 @@
+# Usa una imagen base de Maven para compilar la aplicación
+FROM maven:3.8.4-openjdk-17 AS build
+
+# Copia el archivo pom.xml y las dependencias
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copia el código de la aplicación
+COPY src ./src
+
+# Compila el proyecto
+RUN mvn package -DskipTests
+
+# Usa una imagen de Java para ejecutar la aplicación
+FROM openjdk:17-jdk-slim
+
+# Copia el archivo JAR generado
+COPY --from=build target/*.jar app.jar
+
+# Expone el puerto
+EXPOSE 8080
+
+# Comando para ejecutar la aplicación
+CMD ["java", "-jar", "app.jar"]

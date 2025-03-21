@@ -1,0 +1,29 @@
+# Uses a Golang base image to build the binary
+FROM golang:1.20-alpine AS builder
+
+# Set the working directory in the container
+WORKDIR /go/src/app
+
+# Copy the source code to the container
+COPY . .
+
+# Set GOPATH environment variable for compilation
+ENV GOPATH=/go
+
+# Compile the binary without the need for Go modules
+RUN go build -o app .
+
+# Uses a lighter base image to run the application
+FROM alpine:latest
+
+# Set the working directory in the container
+WORKDIR /root/
+
+# Copy the binary from the build container
+COPY --from=builder /go/src/app/app .
+
+# Exposes the port the application listens on
+EXPOSE 9999
+
+# Command to run the application
+CMD ["./app"]
